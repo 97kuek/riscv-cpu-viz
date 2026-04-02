@@ -8,15 +8,16 @@ export function MuxShape({ mux, isActive }: Props) {
   const pts = `${x},${y} ${x+width},${y+inset} ${x+width},${y+height-inset} ${x},${y+height}`;
 
   return (
-    <g style={{ filter: isActive ? 'drop-shadow(0 0 4px #3b82f6)' : 'none', transition: 'filter 0.3s' }}>
+    <g style={{ filter: isActive ? 'drop-shadow(0 2px 6px rgba(59,130,246,0.2))' : 'none', transition: 'filter 0.25s' }}>
       <polygon points={pts}
-        fill={isActive ? '#0c1e36' : '#090f1a'}
-        stroke={isActive ? '#3b82f6' : '#1e3a5f'}
+        fill={isActive ? '#eff6ff' : '#f8fafc'}
+        stroke={isActive ? '#3b82f6' : '#e2e8f0'}
         strokeWidth={isActive ? 1.5 : 1}
-        style={{ transition: 'fill 0.25s, stroke 0.25s' }} />
+        style={{ transition: 'fill 0.2s, stroke 0.2s' }} />
       <text x={x + width / 2} y={y + height / 2}
         textAnchor="middle" dominantBaseline="middle"
-        fill={isActive ? '#60a5fa' : '#1e3a5f'} fontSize={6.5} fontFamily="monospace">
+        fill={isActive ? '#3b82f6' : '#cbd5e1'} fontSize={6.5}
+        fontFamily="monospace">
         MUX
       </text>
     </g>

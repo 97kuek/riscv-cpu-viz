@@ -5,57 +5,56 @@ interface Props { snapshot: SignalSnapshot; stageIndex: number; }
 const CTRL_KEYS = ['regwrite','alusrc','memwrite','memtoreg','pcsrc','aluop','alucontrol','btaken'];
 const isCtrl = (k: string) => CTRL_KEYS.some(c => k.toLowerCase().includes(c));
 
+function Row({ label, value, ctrl }: { label: string; value: string; ctrl: boolean }) {
+  const shortVal = value.split(' ')[0];
+  const is1 = shortVal === '1';
+  const is0 = shortVal === '0';
+  return (
+    <div className="flex justify-between items-center py-1 border-b border-slate-100 last:border-0">
+      <span className="text-[11px] font-mono text-slate-500">{label}</span>
+      <span className={`text-[11px] font-mono font-semibold
+        ${ctrl
+          ? is1 ? 'text-orange-600' : is0 ? 'text-slate-300' : 'text-orange-500'
+          : 'text-blue-600'}`}>
+        {shortVal}
+      </span>
+    </div>
+  );
+}
+
 export function SignalPanel({ snapshot, stageIndex }: Props) {
-  const all = Object.entries(snapshot.signalValues);
+  const all  = Object.entries(snapshot.signalValues);
   const ctrl = all.filter(([k]) => isCtrl(k));
   const data = all.filter(([k]) => !isCtrl(k));
 
   return (
-    <div className="flex flex-col h-full py-3 px-3 gap-3 overflow-hidden">
+    <div className="flex flex-col h-full py-3 px-3 gap-3 overflow-hidden bg-white border-l border-slate-200">
 
-      {/* Control signals */}
       {ctrl.length > 0 && (
-        <div>
-          <p className="text-[10px] font-semibold text-orange-500/70 uppercase tracking-widest mb-1.5">制御信号</p>
-          <div className="space-y-0.5">
-            {ctrl.map(([k, v]) => (
-              <div key={k} className="flex justify-between items-center text-[11px] font-mono">
-                <span className="text-slate-500">{k}</span>
-                <span className={v === '1' ? 'text-orange-300 font-bold' : v === '0' ? 'text-slate-600' : 'text-orange-200'}>
-                  {v.split(' ')[0]}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
+        <section>
+          <p className="text-[10px] font-semibold text-orange-500 uppercase tracking-widest mb-1.5">
+            制御信号
+          </p>
+          {ctrl.map(([k, v]) => <Row key={k} label={k} value={v} ctrl />)}
+        </section>
       )}
 
-      {/* Data signals */}
       {data.length > 0 && (
-        <div>
-          <p className="text-[10px] font-semibold text-blue-500/70 uppercase tracking-widest mb-1.5">データ</p>
-          <div className="space-y-0.5">
-            {data.map(([k, v]) => (
-              <div key={k} className="flex justify-between items-center text-[11px] font-mono gap-2">
-                <span className="text-slate-500 shrink-0">{k}</span>
-                <span className="text-blue-300 text-right truncate">{v.split(' ')[0]}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+        <section>
+          <p className="text-[10px] font-semibold text-blue-500 uppercase tracking-widest mb-1.5">
+            データ
+          </p>
+          {data.map(([k, v]) => <Row key={k} label={k} value={v} ctrl={false} />)}
+        </section>
       )}
 
       {all.length === 0 && (
-        <p className="text-[11px] text-slate-700 mt-2">—</p>
+        <p className="text-[11px] text-slate-300 mt-2">—</p>
       )}
 
-      {/* Spacer */}
       <div className="flex-1" />
 
-      {/* Stage badge */}
-      <div className="text-[10px] font-mono text-slate-700 text-center">
-        {stageIndex + 1} / 5
-      </div>
+      <p className="text-[10px] font-mono text-slate-300 text-center">{stageIndex + 1} / 5</p>
     </div>
   );
 }
