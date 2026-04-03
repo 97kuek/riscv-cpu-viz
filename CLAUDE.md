@@ -1,118 +1,117 @@
-# CLAUDE.md - AIアシスタント向けガイド
+# CLAUDE.md
 
-このファイルは、このプロジェクトで作業するAIアシスタントのための参照ガイドです。
+このプロジェクトで作業する AI アシスタント向けのガイドです。
 
-## プロジェクト概要
+## 概要
 
-RISC-V CPU の5段パイプライン（Fetch / Decode / Execute / Memory / Writeback）における信号フローを可視化する Web アプリケーションです。ユーザーが命令とステージを選択すると、対応するモジュールと配線がハイライトされます。
+単一サイクル RISC-V CPU の信号フローを可視化する React + TypeScript + Vite アプリ。
+R / I / S / B 型命令の 5 ステージ（Fetch → Decode → Execute → Memory → Writeback）を
+インタラクティブに表示する。**パイプラインではなく単一サイクル構成**。
 
-## 技術スタック
+## コマンド
 
-- React 18 + TypeScript（strict モード）
-- Vite（ビルドツール）
-- Tailwind CSS v3
-- Pure SVG（アニメーションライブラリ・外部グラフライブラリなし）
+```bash
+npm run dev      # 開発サーバー起動（localhost:5173）
+npm run build    # 本番ビルド（tsc + vite build）
+npm run preview  # ビルド結果プレビュー
+```
 
 ## ディレクトリ構造
 
 ```
 src/
-├── main.tsx              # エントリポイント
-├── App.tsx               # メインレイアウト・状態管理のルート
-├── index.css             # Tailwind CSS インポート
+├── App.tsx                      # レイアウト・状態ルート
 ├── data/
-│   ├── types.ts          # 共通型定義
-│   ├── layout.ts         # SVGレイアウト（モジュール位置・ワイヤ経路）
-│   └── instructions.ts   # 命令シミュレーションデータ
+│   ├── types.ts                 # 共通型定義
+│   ├── layout.ts                # SVG 座標（モジュール・ワイヤ）
+│   └── instructions.ts         # 命令ごとのシミュレーションデータ
 ├── components/
-│   ├── InstructionTabs.tsx  # 命令選択ピルボタン
-│   ├── StageTabs.tsx        # ステージ進捗ナビゲーション
-│   ├── CpuDiagram.tsx       # メインSVGダイアグラム
-│   ├── AluDiagram.tsx       # ALU内部図（アコーディオン）
-│   ├── SignalPanel.tsx      # 右パネル（シグナル値・説明）
-│   ├── Wire.tsx             # SVGワイヤ描画コンポーネント
-│   └── Module.tsx           # SVGモジュールボックス描画
+│   ├── CpuDiagram.tsx           # メイン SVG ダイアグラム
+│   ├── Module.tsx               # モジュールボックス
+│   ├── Wire.tsx                 # ワイヤ（polyline）
+│   ├── AluDiagram.tsx           # ALU 内部図（アコーディオン）
+│   ├── SignalPanel.tsx          # 右パネル（シグナル値・説明）
+│   ├── InstructionTabs.tsx      # 命令選択タブ
+│   └── StageTabs.tsx            # ステージナビゲーション
 └── hooks/
-    └── useSimulation.ts     # シミュレーション状態管理フック
+    └── useSimulation.ts         # instrIndex / stageIndex 状態管理
 ```
 
-## 重要な設計方針
+## データの流れ
 
-### 座標系
-- SVG viewBox: `0 0 860 480`
-- コントローラ領域: y=8〜84（紫系背景）
-- データパス領域: y=88〜472（スレート系背景）
-- すべての座標はピクセル単位で `layout.ts` に定義
+```
+instructions.ts（真実のソース）
+  └─ useSimulation（instrIndex, stageIndex を保持）
+       └─ currentSnapshot: SignalSnapshot
+            ├─ activeWires[]   → Wire.tsx でハイライト
+            ├─ activeModules[] → Module.tsx でハイライト
+            ├─ signalValues[]  → SignalPanel.tsx で表示
+            └─ description     → SignalPanel.tsx で表示
+```
 
-### データの流れ
-1. `instructions.ts` の `InstructionSimulation[]` が真実のソース
-2. `useSimulation` フックが `instrIndex` と `stageIndex` を管理
-3. `currentSnapshot: SignalSnapshot` が `activeWires[]` と `activeModules[]` を持つ
-4. `CpuDiagram` はこれらのセットを参照してハイライトを決定
+## SVG 座標系
 
-### カラーパレット
-- データ配線（active）: `#3B82F6`（blue-500）
-- 制御配線（active）: `#F59E0B`（amber-500）
-- 非アクティブ配線: `#CBD5E1`（slate-300）
-- アクティブモジュール: `#EFF6FF` fill、`#3B82F6` stroke
-- 非アクティブモジュール: white fill、`#E2E8F0` stroke
+- viewBox: `0 0 860 480`
+- Controller 領域: y = 8〜84（紫系背景）
+- Datapath 領域: y = 88〜472（スレート系背景）
+- ワイヤは**直角折れ線のみ**（斜め線禁止）
 
-## 命令データの追加方法
+## カラーパレット
 
-`src/data/instructions.ts` に新しい `InstructionSimulation` オブジェクトを追加します：
+| 対象 | 非アクティブ | アクティブ |
+|------|-------------|-----------|
+| データワイヤ | `#94A3B8` 1.5px | `#3B82F6` 2px |
+| 制御ワイヤ | `#94A3B8` 1.5px | `#F59E0B` 1.5px |
+| モジュール枠 | `#CBD5E1` | `#3B82F6` |
+| モジュール塗り | white | `#EFF6FF` |
+
+## 命令データの追加
+
+`src/data/instructions.ts` に `InstructionSimulation` を追加する：
 
 ```typescript
 {
   id: 'unique-id',
-  instruction: 'mnemonic text',
-  type: 'R' | 'I' | 'S' | 'B',  // InstrType
-  encoding: 'binary encoding string',
-  meaning: '動作の説明',
+  instruction: 'sub x1, x2, x3',
+  type: 'R',
+  encoding: '0100000 00011 00010 000 00001 0110011',
+  meaning: 'x1 ← x2 - x3',
   stages: [
     {
       stage: 'fetch',
-      activeModules: ['pc', 'imem'],      // layout.ts の ModuleDef id
-      activeWires: ['w-pc-imem'],         // layout.ts の WireDef id
+      activeModules: ['pc', 'imem'],
+      activeWires: ['w-pc-imem'],
       signalValues: [
-        { label: 'PC', value: '0x00', kind: 'data' },
+        { label: 'PC', value: '0x00000000', kind: 'data' },
       ],
-      description: 'このステージの説明（日本語）',
+      description: '説明テキスト（日本語）',
     },
-    // ... decode, execute, memory, writeback
+    // decode, execute, memory, writeback ...
   ],
 }
 ```
 
-## ワイヤ・モジュールの追加方法
+`activeModules` / `activeWires` の ID は `src/data/layout.ts` の定義と一致させること。
 
-### モジュール追加（`src/data/layout.ts`）
+## ワイヤ・モジュールの追加
+
+`src/data/layout.ts` の `modules` / `wires` 配列に追記する。
+追加後は `instructions.ts` の該当ステージの `activeWires` / `activeModules` に ID を含める。
+
 ```typescript
-// modules 配列に追加
-{ id: 'new-module', label: 'New\nModule', x: 100, y: 200, width: 80, height: 40 }
+// モジュール
+{ id: 'new-mod', label: 'New\nMod', x: 100, y: 200, width: 80, height: 50 }
+
+// ワイヤ
+{ id: 'w-new', label: 'SigName', kind: 'data',
+  points: [[100, 220], [180, 220]], labelPos: [140, 214] }
 ```
 
-### ワイヤ追加（`src/data/layout.ts`）
-```typescript
-// wires 配列に追加
-{
-  id: 'w-new-wire',
-  label: 'SignalName',
-  kind: 'data',  // or 'control'
-  points: [[x1, y1], [x2, y2], [x3, y3]],  // 直角折れ線
-  labelPos: [lx, ly],  // ラベル表示位置
-}
-```
-
-### 注意事項
-- ワイヤは必ず直角折れ線（水平・垂直のみ）を使用
-- モジュールIDは `InstructionSimulation.stages[].activeModules` で参照
-- ワイヤIDは `InstructionSimulation.stages[].activeWires` で参照
-
-## ビルド・開発コマンド
+## デプロイ
 
 ```bash
-npm install       # 依存関係インストール
-npm run dev       # 開発サーバー起動（http://localhost:5173）
-npm run build     # 本番ビルド（tsc + vite build）
-npm run preview   # ビルド結果プレビュー
+npm run build
+npx gh-pages -d dist   # gh-pages ブランチに push → GitHub Pages 公開
 ```
+
+base パス `/riscv-cpu-viz/` は `vite.config.ts` に設定済み。

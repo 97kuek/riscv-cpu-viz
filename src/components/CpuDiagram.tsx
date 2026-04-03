@@ -7,15 +7,26 @@ interface Props {
   snapshot: SignalSnapshot;
 }
 
+function getMuxSelection(snapshot: SignalSnapshot, key: string): '0' | '1' | undefined {
+  const sig = snapshot.signalValues.find(s => s.label === key);
+  if (!sig) return undefined;
+  return sig.value.startsWith('0') ? '0' : '1';
+}
+
 export default function CpuDiagram({ snapshot }: Props) {
   const activeWireSet = new Set(snapshot.activeWires);
   const activeModuleSet = new Set(snapshot.activeModules);
 
-  // Build signal value map from snapshot for wire labels
-  const signalMap: Record<string, string> = {};
+  // Build signal value map: label → value
+  const signalValueMap = new Map<string, string>();
   snapshot.signalValues.forEach(sv => {
-    signalMap[sv.label] = sv.value;
+    signalValueMap.set(sv.label, sv.value);
   });
+
+  // MUX selection states
+  const aluSrcSel = getMuxSelection(snapshot, 'ALUSrc');
+  const memToRegSel = getMuxSelection(snapshot, 'MemToReg');
+  const pcSrcSel = getMuxSelection(snapshot, 'PCSrc');
 
   // Check if a mux is active
   function isMuxActive(muxId: string): boolean {
@@ -106,6 +117,11 @@ export default function CpuDiagram({ snapshot }: Props) {
             key={wire.id}
             def={wire}
             isActive={activeWireSet.has(wire.id)}
+            signalValue={
+              activeWireSet.has(wire.id) && wire.signalKey
+                ? signalValueMap.get(wire.signalKey)
+                : undefined
+            }
           />
         ))}
 
@@ -153,6 +169,18 @@ export default function CpuDiagram({ snapshot }: Props) {
                 <text x={399} y={278} textAnchor="middle" fontSize={8} fill={active ? '#1D4ED8' : '#94A3B8'} fontFamily="monospace">
                   X
                 </text>
+                {aluSrcSel !== undefined && (
+                  <g>
+                    <circle cx={390} cy={252} r={3.5}
+                      fill={aluSrcSel === '0' ? '#3B82F6' : 'white'}
+                      stroke="#3B82F6" strokeWidth={1.5} />
+                    <circle cx={390} cy={278} r={3.5}
+                      fill={aluSrcSel === '1' ? '#3B82F6' : 'white'}
+                      stroke="#3B82F6" strokeWidth={1.5} />
+                    <text x={386} y={249} textAnchor="end" fontSize={7} fill="#94A3B8" fontFamily="monospace">0</text>
+                    <text x={386} y={281} textAnchor="end" fontSize={7} fill="#94A3B8" fontFamily="monospace">1</text>
+                  </g>
+                )}
               </g>
             );
           }
@@ -175,6 +203,18 @@ export default function CpuDiagram({ snapshot }: Props) {
                 <text x={707} y={274} textAnchor="middle" fontSize={8} fill={active ? '#1D4ED8' : '#94A3B8'} fontFamily="monospace">
                   X
                 </text>
+                {memToRegSel !== undefined && (
+                  <g>
+                    <circle cx={698} cy={228} r={3.5}
+                      fill={memToRegSel === '0' ? '#3B82F6' : 'white'}
+                      stroke="#3B82F6" strokeWidth={1.5} />
+                    <circle cx={698} cy={254} r={3.5}
+                      fill={memToRegSel === '1' ? '#3B82F6' : 'white'}
+                      stroke="#3B82F6" strokeWidth={1.5} />
+                    <text x={694} y={225} textAnchor="end" fontSize={7} fill="#94A3B8" fontFamily="monospace">0</text>
+                    <text x={694} y={257} textAnchor="end" fontSize={7} fill="#94A3B8" fontFamily="monospace">1</text>
+                  </g>
+                )}
               </g>
             );
           }
@@ -198,6 +238,18 @@ export default function CpuDiagram({ snapshot }: Props) {
                 <text x={19} y={401} textAnchor="middle" fontSize={8} fill={active ? '#1D4ED8' : '#94A3B8'} fontFamily="monospace">
                   X
                 </text>
+                {pcSrcSel !== undefined && (
+                  <g>
+                    <circle cx={10} cy={358} r={3.5}
+                      fill={pcSrcSel === '0' ? '#3B82F6' : 'white'}
+                      stroke="#3B82F6" strokeWidth={1.5} />
+                    <circle cx={10} cy={402} r={3.5}
+                      fill={pcSrcSel === '1' ? '#3B82F6' : 'white'}
+                      stroke="#3B82F6" strokeWidth={1.5} />
+                    <text x={14} y={355} fontSize={7} fill="#94A3B8" fontFamily="monospace">0</text>
+                    <text x={14} y={405} fontSize={7} fill="#94A3B8" fontFamily="monospace">1</text>
+                  </g>
+                )}
               </g>
             );
           }

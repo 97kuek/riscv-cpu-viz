@@ -4,6 +4,7 @@ import InstructionTabs from './components/InstructionTabs';
 import StageTabs from './components/StageTabs';
 import CpuDiagram from './components/CpuDiagram';
 import SignalPanel from './components/SignalPanel';
+import EncodingDisplay from './components/EncodingDisplay';
 
 // Extract ALU control value from signal snapshot
 function getAluControl(snapshot: ReturnType<typeof useSimulation>['currentSnapshot']): string | undefined {
@@ -51,10 +52,7 @@ export default function App() {
             </code>
           </div>
           <div className="hidden md:flex items-center gap-2">
-            <span className="text-xs text-slate-400">符号化:</span>
-            <code className="text-xs font-mono bg-slate-100 text-slate-600 px-2 py-1 rounded tracking-wider">
-              {sim.currentInstruction.encoding}
-            </code>
+            <EncodingDisplay encoding={sim.currentInstruction.encoding} type={sim.currentInstruction.type} />
           </div>
           <div className="flex items-center gap-2 text-xs text-slate-500">
             <span className="text-slate-400">意味:</span>

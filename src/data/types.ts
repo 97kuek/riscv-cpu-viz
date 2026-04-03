@@ -2,12 +2,19 @@ export type Stage = 'fetch' | 'decode' | 'execute' | 'memory' | 'writeback';
 export type WireKind = 'data' | 'control';
 export type InstrType = 'R' | 'I' | 'S' | 'B';
 
+export interface RegisterEntry {
+  name: string;
+  value: string;
+  changed?: boolean;
+}
+
 export interface SignalSnapshot {
   stage: Stage;
   activeWires: string[];
   activeModules: string[];
   signalValues: { label: string; value: string; kind: WireKind }[];
   description: string;
+  registerState?: RegisterEntry[];
 }
 
 export interface InstructionSimulation {
@@ -42,4 +49,5 @@ export interface WireDef {
   kind: WireKind;
   points: [number, number][];
   labelPos: [number, number];
+  signalKey?: string; // matches SignalSnapshot.signalValues[].label
 }

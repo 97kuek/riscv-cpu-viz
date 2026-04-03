@@ -37,6 +37,7 @@ export const wires: WireDef[] = [
     kind: 'data',
     points: [[86, 244], [120, 244]],
     labelPos: [100, 238],
+    signalKey: 'PC',
   },
 
   // Instruction memory → regfile (rs1)
@@ -82,6 +83,7 @@ export const wires: WireDef[] = [
     kind: 'data',
     points: [[330, 216], [380, 216], [380, 224], [432, 224]],
     labelPos: [355, 210],
+    signalKey: 'SrcA',
   },
 
   // Regfile RD2 → mux_srcb (and dmem write data)
@@ -100,6 +102,7 @@ export const wires: WireDef[] = [
     kind: 'data',
     points: [[362, 252], [362, 268], [560, 268]],
     labelPos: [440, 262],
+    signalKey: 'WriteData',
   },
 
   // ImmExt output → mux_srcb lower input
@@ -109,6 +112,7 @@ export const wires: WireDef[] = [
     kind: 'data',
     points: [[330, 390], [374, 390], [374, 278], [390, 278]],
     labelPos: [360, 350],
+    signalKey: 'ImmExt',
   },
 
   // mux_srcb output → ALU srcB
@@ -118,6 +122,7 @@ export const wires: WireDef[] = [
     kind: 'data',
     points: [[412, 256], [432, 256]],
     labelPos: [420, 250],
+    signalKey: 'SrcB',
   },
 
   // ALU output → dmem address input and result path
@@ -127,6 +132,7 @@ export const wires: WireDef[] = [
     kind: 'data',
     points: [[512, 251], [540, 251], [540, 230], [560, 230]],
     labelPos: [524, 245],
+    signalKey: 'ALUResult',
   },
 
   // ALU result path to mux_res (direct path / non-memory result)
@@ -136,6 +142,7 @@ export const wires: WireDef[] = [
     kind: 'data',
     points: [[540, 251], [540, 254], [680, 254], [680, 254], [698, 254]],
     labelPos: [620, 248],
+    signalKey: 'ALUResult',
   },
 
   // Data memory read data → mux_res upper input
@@ -145,6 +152,7 @@ export const wires: WireDef[] = [
     kind: 'data',
     points: [[640, 236], [670, 236], [670, 228], [698, 228]],
     labelPos: [662, 222],
+    signalKey: 'ReadData',
   },
 
   // mux_res output → writeback result
@@ -154,6 +162,7 @@ export const wires: WireDef[] = [
     kind: 'data',
     points: [[720, 254], [750, 254], [750, 160], [282, 160], [282, 180]],
     labelPos: [740, 168],
+    signalKey: 'Result',
   },
 
   // PC+4 → mux_pc
@@ -273,6 +282,7 @@ export const wires: WireDef[] = [
     kind: 'control',
     points: [[575, 74], [575, 120], [512, 120], [512, 196]],
     labelPos: [540, 115],
+    signalKey: 'ALUCtrl',
   },
 
   // ALU zero/branch → pcsrc logic → mux_pc

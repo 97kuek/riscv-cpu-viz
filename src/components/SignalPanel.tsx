@@ -12,6 +12,30 @@ export default function SignalPanel({ snapshot, alucontrol }: Props) {
 
   return (
     <div className="w-72 border-l border-slate-200 bg-white flex flex-col overflow-y-auto">
+      {/* Register State */}
+      {snapshot.registerState && snapshot.registerState.length > 0 && (
+        <div className="p-4 flex-shrink-0 border-b border-slate-100">
+          <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
+            レジスタ状態
+          </h2>
+          <div className="space-y-1">
+            {snapshot.registerState.map((reg) => (
+              <div key={reg.name} className={`flex items-center justify-between gap-2 px-2 py-1 rounded ${
+                reg.changed ? 'bg-blue-50 ring-1 ring-blue-200' : ''
+              }`}>
+                <span className={`text-xs font-mono font-semibold ${reg.changed ? 'text-blue-700' : 'text-slate-500'}`}>
+                  {reg.name}
+                </span>
+                <span className={`text-xs font-mono ${reg.changed ? 'text-blue-700 font-bold' : 'text-slate-700'}`}>
+                  {reg.changed && <span className="text-blue-400 mr-1">←</span>}
+                  {reg.value}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Signal Values */}
       <div className="p-4 flex-shrink-0">
         <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
