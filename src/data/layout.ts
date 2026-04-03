@@ -121,37 +121,38 @@ export const wires: WireDef[] = [
     label: 'SrcB',
     kind: 'data',
     points: [[412, 256], [432, 256]],
-    labelPos: [420, 250],
+    labelPos: [421, 248],
     signalKey: 'SrcB',
   },
 
-  // ALU output → dmem address input and result path
+  // ALU output → dmem address input
   {
     id: 'w-aluout',
     label: 'ALUResult',
     kind: 'data',
     points: [[512, 251], [540, 251], [540, 230], [560, 230]],
     labelPos: [524, 245],
-    signalKey: 'ALUResult',
+    // no signalKey: shown on w-alures instead to avoid duplicate labels
   },
 
-  // ALU result path to mux_res (direct path / non-memory result)
+  // ALU result bypass → mux_res input 0 (MemToReg=0 selects this)
+  // Routes ABOVE Data Mem to avoid overlap
   {
     id: 'w-alures',
     label: 'ALURes',
     kind: 'data',
-    points: [[540, 251], [540, 254], [680, 254], [680, 254], [698, 254]],
-    labelPos: [620, 248],
+    points: [[512, 251], [545, 251], [545, 180], [714, 180], [714, 228], [698, 228]],
+    labelPos: [630, 174],
     signalKey: 'ALUResult',
   },
 
-  // Data memory read data → mux_res upper input
+  // Data memory read data → mux_res input 1 (MemToReg=1 selects this)
   {
     id: 'w-readdata',
     label: 'ReadData',
     kind: 'data',
-    points: [[640, 236], [670, 236], [670, 228], [698, 228]],
-    labelPos: [662, 222],
+    points: [[640, 236], [672, 236], [672, 254], [698, 254]],
+    labelPos: [655, 247],
     signalKey: 'ReadData',
   },
 

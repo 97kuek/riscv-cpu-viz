@@ -136,7 +136,7 @@ export default function CpuDiagram({ snapshot }: Props) {
         )}
         {/* ALU output branch to dmem and alures */}
         {activeWireSet.has('w-aluout') && activeWireSet.has('w-alures') && (
-          <circle cx={540} cy={251} r={3} fill="#3B82F6" />
+          <circle cx={512} cy={251} r={3} fill="#3B82F6" />
         )}
         {/* RegWrite / ALUSrc branch */}
         {activeWireSet.has('w-regwrite') && activeWireSet.has('w-alusrc') && (

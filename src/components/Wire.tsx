@@ -40,20 +40,22 @@ export default function Wire({ def, isActive, signalValue }: Props) {
       {isActive && signalValue && (
         <g>
           <rect
-            x={labelPos[0] - 2}
-            y={labelPos[1] - 8}
-            width={signalValue.length * 5.5 + 4}
-            height={11}
-            rx={2}
+            x={labelPos[0] - 4}
+            y={labelPos[1] - 9}
+            width={signalValue.length * 6 + 8}
+            height={13}
+            rx={3}
             fill="white"
-            opacity={0.9}
+            stroke={kind === 'data' ? '#BFDBFE' : '#FDE68A'}
+            strokeWidth={0.8}
           />
           <text
             x={labelPos[0]}
             y={labelPos[1]}
-            fontSize={7.5}
+            fontSize={8.5}
+            fontWeight={600}
             fontFamily="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace"
-            fill={kind === 'data' ? '#1E293B' : '#92400E'}
+            fill={kind === 'data' ? '#1D4ED8' : '#92400E'}
           >
             {signalValue}
           </text>
